@@ -1,0 +1,176 @@
+------------SELECT-WHERE---------------
+CREATE TABLE ogrenciler2
+    (
+        id NUMBER(9),
+        isim VARCHAR2(50),
+        adres VARCHAR2(100),
+        sinav_notu NUMBER(3)
+    );
+    INSERT INTO ogrenciler2 VALUES(123, 'Ali Can', 'Ankara',75);
+    INSERT INTO ogrenciler2 VALUES(124, 'Merve Gul', 'Ankara',85);
+    INSERT INTO ogrenciler2 VALUES(125, 'Kemal Yasa', 'Istanbul',85);
+    SELECT * FROM ogrenciler2;
+    
+    --ornek 1 : sinav notu 80 den buyuk olan tum ogrencilerin bilgilerini listele
+    select * from ogrenciler2
+    where sinav_notu>80;
+    
+    --ornek 2 : adresi ankara olan ogrencilerin isim ve adres bigilerini listele
+    select isim,adres from ogrenciler2
+    where adres='Ankara';
+    
+    --ornek 3 : id si 124 olan ogrencilerin tum bilgilerini sil
+    delete from ogrenciler2
+    where id=124;
+    
+    ---------SELECT-BETWEEN--------------
+    
+    CREATE TABLE personel2
+    (
+        id CHAR(5),
+        isim VARCHAR2(50),
+        maas NUMBER(5)
+    );
+    INSERT INTO personel2 VALUES('10001', 'Ahmet Aslan', 7000);
+    INSERT INTO personel2 VALUES( '10002', 'Mehmet Y?lmaz' ,12000);
+    INSERT INTO personel2 VALUES('10003', 'Meryem ', 7215);
+    INSERT INTO personel2 VALUES('10004', 'Veli Han', 5000);
+    INSERT INTO personel2 VALUES('10005', 'Mustafa Ali', 5500);
+    INSERT INTO personel2 VALUES('10005', 'Ay?e Can', 4000);
+    
+    SELECT * FROM personel2;
+    
+    --ornek 4 : id si  10002 ile 10005 arasinda olan personelin bilgilerini listele
+    
+    --1. yontem:
+    select * from personel2
+    where id BETWEEN '10002' AND '10005'; -- ilk ve son deger dahildir
+    
+   /* 2. yontem:
+    select * from personel2
+    where id >= '10002' and id<='1005';
+    */
+    
+    --ornek 5 : ismi mehmet yilmaz ile veli Han arasinda olan personel bilgilerini listele
+    select * from personel2
+    where isim BETWEEN 'Mehmet Y?lmaz' AND 'Veli Han';
+    
+    --ornek 6 : id si 10002-10004 arasinda olmayan personelin maasini listele
+    SELECT id, maas from personel2
+    where id NOT BETWEEN '10002' and '10004';
+    
+    -----------------SELECT-IN------------
+    --ornek 7 : maasi 4000, 5000, 7000 olan olan personelin bilgilerini listele
+    select * from personel2
+    where maas IN(4000,5000,7000);
+    
+ /*   ======================= SELECT - LIKE ======================================
+    NOT:LIKE anahtar kelimesi, sorgulama yaparken belirli patternleri
+    kullanabilmemize olanak sa?lar.
+    SYNTAX:
+    -------
+    SELECT sutün1, sutün2,…
+    FROM  tablo_ad? WHERE sütun LIKE pattern
+    PATTERN ?Ç?N
+    -------------
+    %    ---> 0 veya daha fazla karakteri belirtir.
+    _    ---> Tek bir karakteri temsil eder.
+ ====================================================*/
+ -- ornek 8:ismi a ile baslayanlari listeleyin
+ select * from personel2
+ where isim LIKE 'A%';
+ 
+ -- Ornek 9: ismi n harfi ile bitenleri listeleyiniz
+ select * from personel2
+ WHERE isim LIKE '%n';
+
+-- Ornek 10: isminin 2. harfi e olanlar? listeleyiniz
+select * from personel2
+WHERE isim LIKE '_e%';
+
+-- Ornek 11: isminin 2. harfi e olup di?er harflerinde y olanlar? listeleyiniz
+select * from personel2
+where isim LIKE '_e%y%';
+
+-- Ornek 12: ismi A ile ba?lamayanlar? listeleyiniz
+select * from personel2
+ where isim not LIKE 'A%';
+
+-- Ornek 13:  isminde a harfi olmayanlar? listeleyiniz
+select * from personel2
+ WHERE isim not LIKE '%a%';
+
+-- Ornek 14:  maa??n?n son 2 hanesi 00 olmayanlar? listeleyiniz
+select * from personel2
+ WHERE maas not LIKE '%00';
+
+
+-- Ornek 16: maa?? 5 haneli olanlar? listeleyiniz
+select * from personel2
+where maas LIKE '____';
+
+
+-- Ornek 17: 1. harfi M ve 3.harfi h olan personeli listeleyiniz.
+select * from personel2
+where isim LIKE 'M_h%';
+    
+    
+/*======================= SELECT - REGEXP_LIKE ================================
+    Daha karma??k pattern ile sorgulama i?lemi için REGEXP_LIKE kullan?labilir.
+    Syntax:
+    --------
+    REGEXP_LIKE(sutun_ad?, ‘pattern[] ‘, ‘c’ ] )
+             -- 'c' => case-sentisitive demektir ve default case-sensitive aktiftir.
+     -- 'i' => incase-sentisitive demektir.
+ ========================================================================== */
+    CREATE TABLE kelimeler
+    (
+        id NUMBER(10) UNIQUE,
+        kelime VARCHAR2(50) NOT NULL,
+        harf_sayisi NUMBER(6)
+    );
+    INSERT INTO kelimeler VALUES (1001, 'hot', 3);
+    INSERT INTO kelimeler VALUES (1002, 'hat', 3);
+    INSERT INTO kelimeler VALUES (1003, 'hit', 3);
+    INSERT INTO kelimeler VALUES (1004, 'hbt', 3);
+    INSERT INTO kelimeler VALUES (1005, 'hct', 3);
+    INSERT INTO kelimeler VALUES (1006, 'adem', 4);
+    INSERT INTO kelimeler VALUES (1007, 'selim', 5);
+    INSERT INTO kelimeler VALUES (1008, 'yusuf', 5);
+    INSERT INTO kelimeler VALUES (1009, 'hip', 3);
+    INSERT INTO kelimeler VALUES (1010, 'HOT', 3);
+    INSERT INTO kelimeler VALUES (1011, 'hOt', 3);
+    INSERT INTO kelimeler VALUES (1012, 'h9t', 3);
+    INSERT INTO kelimeler VALUES (1013, 'hoot', 4);
+    INSERT INTO kelimeler VALUES (1014, 'haaat', 5);    
+    
+    --ornek 1 : icerisinde hi bulunan kelimeleri listeleyiniz
+    
+    select * from kelimeler
+    where REGEXP_LIKE (kelime, 'hi');
+    
+    --ornek 2 : icerisinde at veya ot olanlari listele
+    select * from kelimeler
+    where REGEXP_LIKE (kelime, 'at|ot');
+    
+    --ornek3 : ho veya hi ile baslayan kelimeleri buyuk kucuk harfe dikkat etmeden listeleyiniz
+     select * from kelimeler
+    where REGEXP_LIKE (kelime, '^ho|^hi','i'); --sonunda i harfi oldugu zaman buyuk kucuk harf ayrimi yapmiyor
+    
+    --ornek 4 : sonu t veya m ile bitenleri buyuk kucuk harfe dikkat etmeden listeleyin
+     select * from kelimeler
+    where REGEXP_LIKE (kelime, 't$|m$','i');
+    
+    --ornek 5 : h ile baslayip t ile biten 3 harfli kelimaleri buyuk kucuk harfe
+    --dikkat etmeden listeleyiniz
+    select * from kelimeler
+    where REGEXP_LIKE (kelime, 'h[a-zA-Z0-9]t','i'); -- buyuk kucuk harf farketmez deseydi sadece like ile yapabilirdik
+                                                     -- like da sona 'i' ekleyemiyoruz
+                                                     
+    --ornek 28 : ?çinde m veya i veya e olan kelimelerin tüm bilgilerini listeleyin      
+    select * from kelimeler
+    where REGEXP_LIKE (kelime, 'm|i|e');
+    
+    
+    
+    
