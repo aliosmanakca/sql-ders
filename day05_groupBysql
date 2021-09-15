@@ -1,0 +1,105 @@
+/*============================ GROUP BY =====================================
+    GROUP BY cümleci?i bir SELECT ifadesinde sat?rlar?, sutunlar?n de?erlerine
+    göre özet olarak gruplamak için kullan?l?r.
+    GROUP BY cümlece?i her grup ba??na bir sat?r döndürür.
+    GROUP BY genelde, AVG(),COUNT(),MAX(),MIN() ve SUM() gibi aggregate
+    fonksiyonlar? ile birlikte kullan?l?r.*/
+CREATE TABLE manav
+    (
+        isim varchar2(50),
+        urun_adi varchar2(50),
+        urun_miktari number(9)
+    );
+    INSERT INTO manav VALUES( 'Ali', 'Elma', 5);
+    INSERT INTO manav VALUES( 'Ayse', 'Armut', 3);
+    INSERT INTO manav VALUES( 'Veli', 'Elma', 2);
+    INSERT INTO manav VALUES( 'Hasan', 'Uzum', 4);
+    INSERT INTO manav VALUES( 'Ali', 'Armut', 2);
+    INSERT INTO manav VALUES( 'Ayse', 'Elma', 3);
+    INSERT INTO manav VALUES( 'Veli', 'Uzum', 4);
+    INSERT INTO manav VALUES( 'Ali', 'Armut', 2);
+    INSERT INTO manav VALUES( 'Veli', 'Elma', 3);
+    INSERT INTO manav VALUES( 'Ayse', 'Uzum', 4);
+    INSERT INTO manav VALUES( 'Ali', '', 2);
+    
+    SELECT* FROM manav;
+    
+ --ornek 1 : kisi ismine göre sat?lan toplam meyve miktarlar?n? gösteren sorguyu
+ -- yaz?n?z. ali=>5+2+2+2 sum= meyve say?lar?n? toplayacak
+ 
+ SELECT isim, SUM(urun_miktari)from manav
+ GROUP by isim;
+ 
+ --ornek 2 : sat?lan meyve türüne (urun_adi) göre urun alan ki?i say?s?n? gösteren
+ -- sorguyu yaz?n?z. NULL olarak girilen meyveyi listelemesin.count= elma alan ki?ileri sayacak
+ select urun_adi, COUNT(isim) from manav
+ where urun_adi IS NOT NULL
+ group by urun_adi;
+ 
+ --ornek 3 : sat?lan meyve türüne (URUN_AD?) göre sat?lan (urun_miktari )MIN ve
+ -- MAX urun miktarlarini, MAX urun miktarina göre SIRALAYARAK listeyen sorguyu yaz?n?z.
+ select urun_adi , sum(urun_miktari) from manav
+ group by urun_adi
+ order by sum(urun_miktari) DESC;
+ 
+/* *******SIRALAMA A?A?IDAK? G?B? OLMALI********
+  =>SELECT FROM
+  =>WHERE  1)gruplamadan baz? ?artlara göre baz?lar?n? ele
+  =>GROUP BY 2)özelliklerine göre grupla
+  =>HAV?NG (B?RAZDAN Ö?REN?CEZ)3) grup özelliklerine göre ?artla ele. ya where ya having yani
+  =>ORDER BY  4) bu gruplar? istenilen özelli?e göre s?rala */
+ 
+ --ornek 4 : kisi ismine ve urun ad?na (select) göre sat?lan ürünlerin (sum)toplam?n?
+ -- grupland?ran ve önce isme göre sonra urun_adi na göre ters s?rayla (order by) listeyen sorguyu yaz?n?z.
+ select isim,urun_adi, SUM(urun_miktari) from manav
+ group by isim, urun_adi -- burda ikisini bir grup yapiyor. yani tekrar yok
+ order by isim,urun_adi DESC ;
+ 
+ /*--ORNEK5: kisi ISM?NE ve URUN ADINA göre, sat?lan ürünlerin toplam?n? bulan ve
+   ** SELECT IS?M, URUN_AD?    SUM(URUN_M?KTAR?) GROUP BY IS?M, URUN_M?KTAR?**
+  bu toplam de?eri 3 ve fazlas? olan kay?tlar? toplam urun miktarlarina göre
+             **HAV?NG SUM(URUN_M?KTAR?)>=3      **  ORDER BY SUM(URUN_M?KTAR?)
+  ters siralayarak listeyen sorguyu yaz?n?z.  veli elma 5
+       **DESC                                 ali elma 5
+                                              ali armut 4... */
+                                              
+ select isim,urun_adi, SUM(urun_miktari) from manav
+ group by isim, urun_adi 
+ HAVING SUM(urun_miktari)>=3 --burda where kullanamayiz cunku where komutu direk tablodan sorgulama yapar
+                             --sum,count gibi komutlar oldugu zaman having kullanilir
+ order by SUM(urun_miktari) DESC;     
+ -- AGGREGATE (toplama sum, count vs)fonksiyonlar? ile ilgili bir ko?ul koymak için GROUP BY'dan sonra HAVING cümleci?i kullan?l?r.
+ 
+ /*ornek 6 : sat?lan urun_adi'na göre gruplay?p MAX urun say?lar?n?,(yine max ürün say?s?na göre)
+  s?ralayarak listeyen sorguyu yaz?n?z. NOT: Sorgu, sadece MAKS urun_miktari
+  MIN urun_miktar?na e?it olmayan kay?tlar? (where gibi ko?ul var) listelemelidir.*/
+  select urun_adi, MAX(urun_miktari) esit_olmayan_urunler from manav
+  group by urun_adi 
+  HAVING MAX(urun_miktari)<>MIN(urun_miktari) -- burda <> yerine != yazilabilir
+  order by MAX(urun_miktari);
+  
+  /*============================= DISTINCT =====================================
+    DISTINCT cümleci?i bir SORGU ifadesinde benzer olan sat?rlar? flitrelemek
+    için kullan?l?r. Dolay?s?yla seçilen sutun yada sutunlar için benzersiz veri
+    içeren sat?rlar olu?turmaya yarar.
+    SYNTAX
+    -------
+    SELECT DISTINCT sutun_adi1, sutun_adi2, satin_adi3
+    FROM  tablo_ad?; */
+  
+ --ornek 1 : sat?lan farkl? meyve türlerinin say?s?n? listeyen sorguyu yaz?n?z.
+ -- (kaç farkl? meyve türü var, elma armut üzüm=3)
+  select count ( DISTINCT urun_adi ) as urun_cesit_sayisi from manav;
+  
+--ornek 2 : sat?lan meyve ve isimlerin (totalde )farkl? olanlar?n? listeyen sorguyu yaz?n?z.
+select DISTINCT urun_adi,isim from manav;
+
+--ornek 3 : sat?lan meyvelerin urun_mikarlarinin benzersiz  olanlar?n?n
+--toplamlarini listeyen sorguyu yaz?n?z.2+3+4+5=14
+SELECT sum (DISTINCT urun_miktari) from manav; 
+
+  
+ 
+
+ 
+ 
